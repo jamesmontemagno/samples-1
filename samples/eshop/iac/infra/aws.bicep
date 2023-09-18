@@ -225,18 +225,9 @@ resource rabbitmqContainer 'Applications.Core/containers@2023-10-01-preview' = {
       ports: {
         rabbitmq: {
           containerPort: 5672
-          provides: rabbitmqRoute.id
         }
       }
     }
-  }
-}
-
-resource rabbitmqRoute 'Applications.Core/httproutes@2023-10-01-preview' = {
-  name: 'rabbitmq-route-eshop-event-bus'
-  properties: {
-    application: application
-    port: 5672
   }
 }
 
@@ -346,8 +337,8 @@ resource rabbitmq 'Applications.Messaging/rabbitMQQueues@2023-10-01-preview' = {
     environment: environment
     resourceProvisioning: 'manual'
     queue: 'eshop-event-bus'
-    host: rabbitmqRoute.properties.hostname
-    port: rabbitmqRoute.properties.port
+    host: rabbitmqContainer.name
+    port: rabbitmqContainer.port
     username: 'guest'
     secrets: {
       password: 'guest'

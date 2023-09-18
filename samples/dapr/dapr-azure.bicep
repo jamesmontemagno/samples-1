@@ -49,7 +49,6 @@ resource frontend 'Applications.Core/containers@2023-10-01-preview' = {
       ports: {
         ui: {
           containerPort: 80
-          provides: frontendRoute.id
         }
       }
     }
@@ -62,13 +61,6 @@ resource frontend 'Applications.Core/containers@2023-10-01-preview' = {
   }
 }
 
-resource frontendRoute 'Applications.Core/httpRoutes@2023-10-01-preview' = {
-  name: 'frontend-route'
-  properties: {
-    application: app.id
-  }
-}
-
 resource gateway 'Applications.Core/gateways@2023-10-01-preview' = {
   name: 'gateway'
   properties: {
@@ -76,7 +68,7 @@ resource gateway 'Applications.Core/gateways@2023-10-01-preview' = {
     routes: [
       {
         path: '/'
-        destination: frontendRoute.id
+        destination: `http://frontend:80'
       }
     ]
   }

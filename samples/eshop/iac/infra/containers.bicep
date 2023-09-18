@@ -24,18 +24,9 @@ resource rabbitmqContainer 'Applications.Core/containers@2023-10-01-preview' = {
       ports: {
         rabbitmq: {
           containerPort: 5672
-          provides: rabbitmqRoute.id
         }
       }
     }
-  }
-}
-
-resource rabbitmqRoute 'Applications.Core/httproutes@2023-10-01-preview' = {
-  name: 'rabbitmq-route-eshop-event-bus'
-  properties: {
-    application: application
-    port: 5672
   }
 }
 
@@ -53,18 +44,9 @@ resource sqlIdentityContainer 'Applications.Core/containers@2023-10-01-preview' 
       ports: {
         sql: {
           containerPort: 1433
-          provides: sqlIdentityRoute.id
         }
       }
     }
-  }
-}
-
-resource sqlIdentityRoute 'Applications.Core/httproutes@2023-10-01-preview' = {
-  name: 'sql-route-identitydb'
-  properties: {
-    application: application
-    port: 1433
   }
 }
 
@@ -82,18 +64,9 @@ resource sqlCatalogContainer 'Applications.Core/containers@2023-10-01-preview' =
       ports: {
         sql: {
           containerPort: 1433
-          provides: sqlCatalogRoute.id
         }
       }
     }
-  }
-}
-
-resource sqlCatalogRoute 'Applications.Core/httproutes@2023-10-01-preview' = {
-  name: 'sql-route-catalogdb'
-  properties: {
-    application: application
-    port: 1433
   }
 }
 
@@ -111,18 +84,9 @@ resource sqlOrderingContainer 'Applications.Core/containers@2023-10-01-preview' 
       ports: {
         sql: {
           containerPort: 1433
-          provides: sqlOrderingRoute.id
         }
       }
     }
-  }
-}
-
-resource sqlOrderingRoute 'Applications.Core/httproutes@2023-10-01-preview' = {
-  name: 'sql-route-orderingdb'
-  properties: {
-    application: application
-    port: 1433
   }
 }
 
@@ -140,18 +104,9 @@ resource sqlWebhooksContainer 'Applications.Core/containers@2023-10-01-preview' 
       ports: {
         sql: {
           containerPort: 1433
-          provides: sqlWebhooksRoute.id
         }
       }
     }
-  }
-}
-
-resource sqlWebhooksRoute 'Applications.Core/httproutes@2023-10-01-preview' = {
-  name: 'sql-route-webhooksdb'
-  properties: {
-    application: application
-    port: 1433
   }
 }
 
@@ -165,18 +120,9 @@ resource redisBasketContainer 'Applications.Core/containers@2023-10-01-preview' 
       ports: {
         redis: {
           containerPort: 6379
-          provides: redisBasketRoute.id
         }
       }
     }
-  }
-}
-
-resource redisBasketRoute 'Applications.Core/httproutes@2023-10-01-preview' = {
-  name: 'redis-route-basket-data'
-  properties: {
-    application: application
-    port: 6379
   }
 }
 
@@ -190,18 +136,9 @@ resource redisKeystoreContainer 'Applications.Core/containers@2023-10-01-preview
       ports: {
         redis: {
           containerPort: 6379
-          provides: redisKeystoreRoute.id
         }
       }
     }
-  }
-}
-
-resource redisKeystoreRoute 'Applications.Core/httproutes@2023-10-01-preview' = {
-  name: 'redis-route-keystore-data'
-  properties: {
-    application: application
-    port: 6379
   }
 }
 
@@ -214,8 +151,8 @@ resource rabbitmq 'Applications.Messaging/rabbitMQQueues@2023-10-01-preview' = {
     environment: environment
     resourceProvisioning: 'manual'
     queue: 'eshop-event-bus'
-    host: rabbitmqRoute.properties.hostname
-    port: rabbitmqRoute.properties.port
+    host: rabbitmqContainer.name
+    port: rrabbitmqContainer.port
     username: 'guest'
     secrets: {
       password: 'guest'
@@ -229,13 +166,13 @@ resource sqlIdentityDb 'Applications.Datastores/sqlDatabases@2023-10-01-preview'
     application: application
     environment: environment
     resourceProvisioning: 'manual'
-    server: sqlIdentityRoute.properties.hostname
+    server: sqlIdentityContainer.name
     database: 'IdentityDb'
-    port: sqlIdentityRoute.properties.port
+    port: sqlIdentityContainer.port
     username: adminUsername
     secrets: {
       password: adminPassword
-      connectionString: 'Server=tcp:${sqlIdentityRoute.properties.hostname},${sqlIdentityRoute.properties.port};Initial Catalog=IdentityDb;User Id=${adminUsername};Password=${adminPassword};Encrypt=false'
+      connectionString: 'Server=tcp:${sqlIdentityContainer.name},${sqlIdentityContainer.port};Initial Catalog=IdentityDb;User Id=${adminUsername};Password=${adminPassword};Encrypt=false'
     }
   }
 }
@@ -246,13 +183,13 @@ resource sqlCatalogDb 'Applications.Datastores/sqlDatabases@2023-10-01-preview' 
     application: application
     environment: environment
     resourceProvisioning: 'manual'
-    server: sqlCatalogRoute.properties.hostname
+    server: sqlCatalogContainer.name
     database: 'CatalogDb'
-    port: sqlCatalogRoute.properties.port
+    port: sqlCatalogContainer.port
     username: adminUsername
     secrets: {
       password: adminPassword
-      connectionString: 'Server=tcp:${sqlCatalogRoute.properties.hostname},${sqlCatalogRoute.properties.port};Initial Catalog=CatalogDb;User Id=${adminUsername};Password=${adminPassword};Encrypt=false'
+      connectionString: 'Server=tcp:${sqlCatalogContainer.name},${sqlCatalogContainer.port};Initial Catalog=CatalogDb;User Id=${adminUsername};Password=${adminPassword};Encrypt=false'
     }
   }
 }
@@ -263,13 +200,13 @@ resource sqlOrderingDb 'Applications.Datastores/sqlDatabases@2023-10-01-preview'
     application: application
     environment: environment
     resourceProvisioning: 'manual'
-    server: sqlOrderingRoute.properties.hostname
+    server: sqlOrderingContainer.name
     database: 'OrderingDb'
-    port: sqlOrderingRoute.properties.port
+    port: sqlOrderingContainer.port
     username: adminUsername
     secrets: {
       password: adminPassword
-      connectionString: 'Server=tcp:${sqlOrderingRoute.properties.hostname},${sqlOrderingRoute.properties.port};Initial Catalog=OrderingDb;User Id=${adminUsername};Password=${adminPassword};Encrypt=false'
+      connectionString: 'Server=tcp:${sqlOrderingContainer.name},${sqlOrderingContainer.port};Initial Catalog=OrderingDb;User Id=${adminUsername};Password=${adminPassword};Encrypt=false'
     }
   }
 }
@@ -280,13 +217,13 @@ resource sqlWebhooksDb 'Applications.Datastores/sqlDatabases@2023-10-01-preview'
     application: application
     environment: environment
     resourceProvisioning: 'manual'
-    server: sqlWebhooksRoute.properties.hostname
+    server: sqlWebhooksContainer.name
     database: 'WebhooksDb'
-    port: sqlWebhooksRoute.properties.port
+    port: sqlWebhooksContainer.port
     username: adminUsername
     secrets: {
       password: adminPassword
-      connectionString: 'Server=tcp:${sqlWebhooksRoute.properties.hostname},${sqlWebhooksRoute.properties.port};Initial Catalog=WebhooksDb;User Id=${adminUsername};Password=${adminPassword};Encrypt=false'
+      connectionString: 'Server=tcp:${sqlWebhooksContainer.name},${sqlWebhooksContainer.port};Initial Catalog=WebhooksDb;User Id=${adminUsername};Password=${adminPassword};Encrypt=false'
     }
   }
 }
@@ -297,10 +234,10 @@ resource redisBasket 'Applications.Datastores/redisCaches@2023-10-01-preview' = 
     application: application
     environment: environment
     resourceProvisioning: 'manual'
-    host: redisBasketRoute.properties.hostname
-    port: redisBasketRoute.properties.port
+    host: redisBasketContainer.name
+    port: redisBasketContainer.port
     secrets: {
-      connectionString: '${redisBasketRoute.properties.hostname}:${redisBasketRoute.properties.port},abortConnect=False'
+      connectionString: '${redisBasketContainer.name}:${redisBasketContainer.port},abortConnect=False'
     }
   }
 }
@@ -311,10 +248,10 @@ resource redisKeystore 'Applications.Datastores/redisCaches@2023-10-01-preview' 
     application: application
     environment: environment
     resourceProvisioning: 'manual'
-    host: redisKeystoreRoute.properties.hostname
-    port: redisKeystoreRoute.properties.port
+    host: redisKeystoreContainer.name
+    port:redisKeystoreContainer.port
     secrets: {
-      connectionString: '${redisKeystoreRoute.properties.hostname}:${redisKeystoreRoute.properties.port},abortConnect=False'
+      connectionString: '${redisKeystoreContainer.name}:${redisKeystoreContainer.port},abortConnect=False'
     }
   }
 }
