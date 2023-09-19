@@ -27,27 +27,6 @@ param TAG string
 @description('Name of the Gateway')
 param gatewayName string
 
-@description('Name of the Identity HTTP Route')
-param identityHttpName string
-
-@description('Name of the Basket HTTP Route')
-param basketHttpName string
-
-@description('The name of the Catalog HTTP Route')
-param catalogHttpName string
-
-@description('Name of the Ordering HTTP Route')
-param orderingHttpName string
-
-@description('Name of the Ordering gRPC Route')
-param orderingGrpcName string
-
-@description('Name of the Ordering SignalR Hub HTTP Route')
-param orderingsignalrhubHttpName string
-
-@description('Name of the Ordering background tasks HTTP Route')
-param orderbgtasksHttpName string
-
 @description('Name of the Keystore Redis portable resource')
 param redisKeystoreName string
 
@@ -86,17 +65,17 @@ resource ordering 'Applications.Core/containers@2023-10-01-preview' = {
         PORT: '80'
         ConnectionString: sqlOrderingDb.connectionString()
         EventBusConnection: (AZURESERVICEBUSENABLED == 'True') ? serviceBusConnectionString : rabbitmq.properties.host
-        identityUrl: identityHttp.properties.url
-        IdentityUrlExternal: '${gateway.properties.url}/${identityHttp.properties.hostname}'
+        identityUrl: 'http://identity-api:5105'
+        IdentityUrlExternal: '${gateway.properties.url}/identity-api'
       }
       ports: {
         http: {
           containerPort: 80
-          provides: orderingHttp.id
+          port: 5102
         }
         grpc: {
           containerPort: 81
-          provides: orderingGrpc.id
+          port: 9102
         }
       }
     }
@@ -106,7 +85,7 @@ resource ordering 'Applications.Core/containers@2023-10-01-preview' = {
         disableDefaultEnvVars: true
       }
       identity: {
-        source: identityHttp.id
+        source: 'http://identity-api:5105'
         disableDefaultEnvVars: true
       }
     }
@@ -137,7 +116,7 @@ resource orderbgtasks 'Applications.Core/containers@2023-10-01-preview' = {
       ports: {
         http: {
           containerPort: 80
-          provides: orderbgtasksHttp.id
+          port: 5111
         }
       }
     }
@@ -167,13 +146,13 @@ resource orderingsignalrhub 'Applications.Core/containers@2023-10-01-preview' = 
         AzureServiceBusEnabled: AZURESERVICEBUSENABLED
         EventBusConnection: (AZURESERVICEBUSENABLED == 'True') ? serviceBusConnectionString : rabbitmq.properties.host
         SignalrStoreConnectionString: '${redisKeystore.properties.host}:${redisKeystore.properties.port},password=${redisKeystore.password()},abortConnect=False'
-        identityUrl: identityHttp.properties.url
-        IdentityUrlExternal: '${gateway.properties.url}/${identityHttp.properties.hostname}'
+        identityUrl: 'http://identity-api:5105'
+        IdentityUrlExternal: '${gateway.properties.url}/identity-api'
       }
       ports: {
         http: {
           containerPort: 80
-          provides: orderingsignalrhubHttp.id
+          port: 5112
         }
       }
     }
@@ -183,19 +162,19 @@ resource orderingsignalrhub 'Applications.Core/containers@2023-10-01-preview' = 
         disableDefaultEnvVars: true
       }
       identity: {
-        source: identityHttp.id
+        source: 'http://identity-api:5105'
         disableDefaultEnvVars: true
       }
       ordering: {
-        source: orderingHttp.id
+        source: 'http://ordering-api:5102'
         disableDefaultEnvVars: true
       }
       catalog: {
-        source: catalogHttp.id
+        source: 'http://catalog-api:5101'
         disableDefaultEnvVars: true
       }
       basket: {
-        source: basketHttp.id
+        source: 'http://basket-api:5103'
         disableDefaultEnvVars: true
       }
     }
@@ -206,34 +185,6 @@ resource orderingsignalrhub 'Applications.Core/containers@2023-10-01-preview' = 
 
 resource gateway 'Applications.Core/gateways@2023-10-01-preview' existing = {
   name: gatewayName
-}
-
-resource identityHttp 'Applications.Core/httpRoutes@2023-10-01-preview' existing = {
-  name: identityHttpName
-}
-
-resource basketHttp 'Applications.Core/httpRoutes@2023-10-01-preview' existing = {
-  name: basketHttpName
-}
-
-resource catalogHttp 'Applications.Core/httpRoutes@2023-10-01-preview' existing = {
-  name: catalogHttpName
-}
-
-resource orderingHttp 'Applications.Core/httpRoutes@2023-10-01-preview' existing = {
-  name: orderingHttpName
-}
-
-resource orderingGrpc 'Applications.Core/httpRoutes@2023-10-01-preview' existing = {
-  name: orderingGrpcName
-}
-
-resource orderingsignalrhubHttp 'Applications.Core/httpRoutes@2023-10-01-preview' existing = {
-  name: orderingsignalrhubHttpName
-}
-
-resource orderbgtasksHttp 'Applications.Core/httpRoutes@2023-10-01-preview' existing = {
-  name: orderbgtasksHttpName
 }
 
 // PORTABLE RESOURCES -----------------------------------------------------------
@@ -249,3 +200,15 @@ resource sqlOrderingDb 'Applications.Datastores/sqlDatabases@2023-10-01-preview'
 resource rabbitmq 'Applications.Messaging/rabbitMQQueues@2023-10-01-preview' existing = {
   name: rabbitmqName
 }
+
+
+// Output
+@description('Name of the Ordering container')
+output apiContainer string = ordering.name
+@description('Name of the Ordering Background tasks container')
+output bgContainer string = orderbgtasks.name
+
+@description('Name of the Ordering signal rhub')
+output sigContainer string = orderingsignalrhub.name
+
+

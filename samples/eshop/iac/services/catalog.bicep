@@ -34,12 +34,6 @@ param TAG string
 @description('Name of the Gateway')
 param gatewayName string
 
-@description('The name of the Catalog HTTP Route')
-param catalogHttpName string
-
-@description('The name of the Catalog gRPC Route')
-param catalogGrpcName string
-
 @description('The name of the RabbitMQ portable resource')
 param rabbitmqName string
 
@@ -79,11 +73,11 @@ resource catalog 'Applications.Core/containers@2023-10-01-preview' = {
       ports: {
         http: {
           containerPort: 80
-          provides: catalogHttp.id
+          port: 5101
         }
         grpc: {
           containerPort: 81
-          provides: catalogGrpc.id
+          port: 9101
         }
       }
     }
@@ -101,13 +95,6 @@ resource gateway 'Applications.Core/gateways@2023-10-01-preview' existing = {
   name: gatewayName
 }
 
-resource catalogHttp 'Applications.Core/httpRoutes@2023-10-01-preview' existing = {
-  name: catalogHttpName
-}
-
-resource catalogGrpc 'Applications.Core/httpRoutes@2023-10-01-preview' existing = {
-  name: catalogGrpcName
-}
 
 // PORTABLE RESOURCES -----------------------------------------------------------
 
@@ -118,3 +105,8 @@ resource sqlCatalogDb 'Applications.Datastores/sqlDatabases@2023-10-01-preview' 
 resource rabbitmq 'Applications.Messaging/rabbitMQQueues@2023-10-01-preview' existing = {
   name: rabbitmqName
 }
+
+
+// Output
+@description('Name of the Catalog container')
+output container string = catalog.name
