@@ -152,7 +152,7 @@ resource rabbitmq 'Applications.Messaging/rabbitMQQueues@2023-10-01-preview' = {
     resourceProvisioning: 'manual'
     queue: 'eshop-event-bus'
     host: rabbitmqContainer.name
-    port: rrabbitmqContainer.port
+    port: rabbitmqContainer.properties.container.ports.rabbitmq.port
     username: 'guest'
     secrets: {
       password: 'guest'
@@ -168,11 +168,11 @@ resource sqlIdentityDb 'Applications.Datastores/sqlDatabases@2023-10-01-preview'
     resourceProvisioning: 'manual'
     server: sqlIdentityContainer.name
     database: 'IdentityDb'
-    port: sqlIdentityContainer.port
+    port: sqlIdentityContainer.properties.container.ports.sql.port
     username: adminUsername
     secrets: {
       password: adminPassword
-      connectionString: 'Server=tcp:${sqlIdentityContainer.name},${sqlIdentityContainer.port};Initial Catalog=IdentityDb;User Id=${adminUsername};Password=${adminPassword};Encrypt=false'
+      connectionString: 'Server=tcp:${sqlIdentityContainer.name},${sqlIdentityContainer.properties.container.ports.sql.port};Initial Catalog=IdentityDb;User Id=${adminUsername};Password=${adminPassword};Encrypt=false'
     }
   }
 }
@@ -185,11 +185,11 @@ resource sqlCatalogDb 'Applications.Datastores/sqlDatabases@2023-10-01-preview' 
     resourceProvisioning: 'manual'
     server: sqlCatalogContainer.name
     database: 'CatalogDb'
-    port: sqlCatalogContainer.port
+    port: sqlCatalogContainer.properties.container.ports.sql.port
     username: adminUsername
     secrets: {
       password: adminPassword
-      connectionString: 'Server=tcp:${sqlCatalogContainer.name},${sqlCatalogContainer.port};Initial Catalog=CatalogDb;User Id=${adminUsername};Password=${adminPassword};Encrypt=false'
+      connectionString: 'Server=tcp:${sqlCatalogContainer.name},${sqlCatalogContainer.properties.container.ports.sql.port};Initial Catalog=CatalogDb;User Id=${adminUsername};Password=${adminPassword};Encrypt=false'
     }
   }
 }
@@ -202,11 +202,11 @@ resource sqlOrderingDb 'Applications.Datastores/sqlDatabases@2023-10-01-preview'
     resourceProvisioning: 'manual'
     server: sqlOrderingContainer.name
     database: 'OrderingDb'
-    port: sqlOrderingContainer.port
+    port: sqlOrderingContainer.properties.container.ports.sql.port
     username: adminUsername
     secrets: {
       password: adminPassword
-      connectionString: 'Server=tcp:${sqlOrderingContainer.name},${sqlOrderingContainer.port};Initial Catalog=OrderingDb;User Id=${adminUsername};Password=${adminPassword};Encrypt=false'
+      connectionString: 'Server=tcp:${sqlOrderingContainer.name},${sqlOrderingContainer.properties.container.ports.sql.port};Initial Catalog=OrderingDb;User Id=${adminUsername};Password=${adminPassword};Encrypt=false'
     }
   }
 }
@@ -219,11 +219,11 @@ resource sqlWebhooksDb 'Applications.Datastores/sqlDatabases@2023-10-01-preview'
     resourceProvisioning: 'manual'
     server: sqlWebhooksContainer.name
     database: 'WebhooksDb'
-    port: sqlWebhooksContainer.port
+    port: sqlWebhooksContainer.properties.container.ports.sql.port
     username: adminUsername
     secrets: {
       password: adminPassword
-      connectionString: 'Server=tcp:${sqlWebhooksContainer.name},${sqlWebhooksContainer.port};Initial Catalog=WebhooksDb;User Id=${adminUsername};Password=${adminPassword};Encrypt=false'
+      connectionString: 'Server=tcp:${sqlWebhooksContainer.name},${sqlWebhooksContainer.properties.container.ports.sql.port};Initial Catalog=WebhooksDb;User Id=${adminUsername};Password=${adminPassword};Encrypt=false'
     }
   }
 }
@@ -235,9 +235,9 @@ resource redisBasket 'Applications.Datastores/redisCaches@2023-10-01-preview' = 
     environment: environment
     resourceProvisioning: 'manual'
     host: redisBasketContainer.name
-    port: redisBasketContainer.port
+    port: redisBasketContainer.properties.container.ports.redis.port
     secrets: {
-      connectionString: '${redisBasketContainer.name}:${redisBasketContainer.port},abortConnect=False'
+      connectionString: '${redisBasketContainer.name}:${redisBasketContainer.properties.container.ports.redis.port},abortConnect=False'
     }
   }
 }
@@ -249,9 +249,9 @@ resource redisKeystore 'Applications.Datastores/redisCaches@2023-10-01-preview' 
     environment: environment
     resourceProvisioning: 'manual'
     host: redisKeystoreContainer.name
-    port:redisKeystoreContainer.port
+    port:redisKeystoreContainer.properties.container.ports.redis.port
     secrets: {
-      connectionString: '${redisKeystoreContainer.name}:${redisKeystoreContainer.port},abortConnect=False'
+      connectionString: '${redisKeystoreContainer.name}:${redisKeystoreContainer.properties.container.ports.redis.port},abortConnect=False'
     }
   }
 }

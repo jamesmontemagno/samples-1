@@ -225,6 +225,7 @@ resource rabbitmqContainer 'Applications.Core/containers@2023-10-01-preview' = {
       ports: {
         rabbitmq: {
           containerPort: 5672
+          port: 5672
         }
       }
     }
@@ -338,7 +339,7 @@ resource rabbitmq 'Applications.Messaging/rabbitMQQueues@2023-10-01-preview' = {
     resourceProvisioning: 'manual'
     queue: 'eshop-event-bus'
     host: rabbitmqContainer.name
-    port: rabbitmqContainer.port
+    port: rabbitmqContainer.properties.container.ports.rabbitmq.port
     username: 'guest'
     secrets: {
       password: 'guest'
