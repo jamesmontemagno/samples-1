@@ -68,7 +68,7 @@ resource gateway 'Applications.Core/gateways@2023-10-01-preview' = {
     routes: [
       {
         path: '/'
-        destination: 'http://frontend:80'
+        destination: 'http://frontend'
       }
     ]
   }
